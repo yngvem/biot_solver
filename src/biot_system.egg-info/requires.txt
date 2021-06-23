@@ -1,0 +1,9 @@
+h5py
+matplotlib
+meshio
+numba
+numpy
+pandas
+pygmsh
+scipy
+tqdm

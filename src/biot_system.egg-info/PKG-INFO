@@ -1,0 +1,23 @@
+Metadata-Version: 1.1
+Name: biot-system
+Version: 0.1.0
+Summary: A FEniCS solver for Biot's equation
+Home-page: UNKNOWN
+Author: Yngve Mardal Moe
+Author-email: yngve.m.moe@gmail.com
+License: GNU General Public License v3
+Description: A Python package that uses the FEniCS project.
+        
+        Installation instructions
+        -------------------------
+        Install FEniCS and MSHR. Then, download this repository and run
+        
+        .. code:: bash
+        
+            python setup.py install
+        
+        Alternatively, you can use the development container plugin of VSCode.
+        
+        
+Platform: UNKNOWN
+Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)

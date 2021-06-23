@@ -1,0 +1,13 @@
+MANIFEST.in
+README.rst
+setup.cfg
+setup.py
+src/biot_system/__init__.py
+src/biot_system/biot_system.py
+src/biot_system/utils.py
+src/biot_system.egg-info/PKG-INFO
+src/biot_system.egg-info/SOURCES.txt
+src/biot_system.egg-info/dependency_links.txt
+src/biot_system.egg-info/requires.txt
+src/biot_system.egg-info/top_level.txt
+tests/__init__.py
