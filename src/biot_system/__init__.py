@@ -5,4 +5,4 @@ __email__ = "yngve.m.moe@gmail.com"
 __version__ = "0.1.0"
 
 
-from .biot_system import BiotSystem, epsilon
+from .biot_system import TotalPressureBiotSystem, BiotSystem, epsilon

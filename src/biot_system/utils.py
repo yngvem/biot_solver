@@ -58,5 +58,5 @@ def fenics_contour(F, mesh_size=None, ax=None, clims=None):
     else:
         vmin, vmax = clims
     ax.contourf(xx, yy, zz.reshape(xx.shape), vmin=vmin, vmax=vmax, cmap="coolwarm", levels=100)
-    ax.set_title(f"{zz.max():1f}, {zz.min():.1f}")
+    ax.set_title(f"{zz.max():.1g}, {zz.min():.1g}")
     ax.axis("equal")
