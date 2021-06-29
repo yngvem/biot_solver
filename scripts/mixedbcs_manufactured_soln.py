@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from ufl import nabla_div, dx, inner, nabla_grad, ds, dot
 from biot_system.utils import fenics_contour, fenics_quiver
-from biot_system import BiotSystem, epsilon
+from biot_system import TotalPressureBiotSystem, epsilon
 
 
 plot_result = True
@@ -55,18 +55,6 @@ boundary_indices = {
 }
 
 all_bc_settings = {
-    'dirichlet': {
-        'u_dirichlet': ['left', 'right', 'top', 'bottom'],
-        'u_neumann': [],
-        'p_dirichlet': ['left', 'right', 'top', 'bottom'],
-        'p_neumann': [],
-    },
-    'neumann': {
-        'u_dirichlet': [],
-        'u_neumann': ['left', 'right', 'top', 'bottom'],
-        'p_dirichlet': [],
-        'p_neumann': ['left', 'right', 'top', 'bottom'],
-    },
     'u_dirichlet-p_neumann': {
         'u_dirichlet': ['left', 'right', 'top', 'bottom'],
         'u_neumann': [],
@@ -115,14 +103,26 @@ all_bc_settings = {
         'p_dirichlet': ['left'],
         'p_neumann': ['right', 'top', 'bottom'],
     },
+    'dirichlet': {
+        'u_dirichlet': ['left', 'right', 'top', 'bottom'],
+        'u_neumann': [],
+        'p_dirichlet': ['left', 'right', 'top', 'bottom'],
+        'p_neumann': [],
+    },
+    'neumann': {
+        'u_dirichlet': [],
+        'u_neumann': ['left', 'right', 'top', 'bottom'],
+        'p_dirichlet': [],
+        'p_neumann': ['left', 'right', 'top', 'bottom'],
+    },
 }
 
 
-for nT in [8]:
-    print("\nnT", nT, flush=True)
-    for nX in [4, 8, 16]:
-        print("\nnX", nX, flush=True)
-        for setup, bc_settings in all_bc_settings.items():
+for setup, bc_settings in all_bc_settings.items():
+    for nT in [8]:
+        print("\nnT", nT, flush=True)
+        for nX in [4, 8, 16]:
+            print("\nnX", nX, flush=True)
             u_dirichlet = bc_settings['u_dirichlet']
             p_dirichlet = bc_settings['p_dirichlet']
             u_neumann   = bc_settings['u_neumann']
@@ -219,6 +219,29 @@ for nT in [8]:
                     print(pde.errornorm(true_u, solution.split()[0]))
 
                     print("Starting timestepping", flush=True)
+                    if plot_result:
+                        fig = plt.figure()
+                        plt.subplot(321)
+                        plt.title("True u")
+                        fenics_quiver(true_u)
+                        plt.subplot(323)
+                        plt.title("Estimated u")
+                        fenics_quiver(solution.split()[0])
+                        plt.subplot(325)
+                        plt.title("Error u")
+                        fenics_quiver(pde.project(true_u - solution.split()[0], bc_V))
+
+                        plt.subplot(322)
+                        plt.title("True pF")
+                        fenics_contour(true_p)
+                        plt.subplot(324)
+                        plt.title("Estimated pF")
+                        fenics_contour(solution.split()[2])
+                        plt.subplot(326)
+                        plt.title("Error pF")
+                        fenics_contour(pde.project(true_p - solution.split()[2], bc_Q))
+                        plt.savefig(f"convergence_static/figs/bcs_{setup}--u_{U_scale(0)}-p_{P_scale(0)}--nT_{nT:02d}-nX_{nX:02d}--ti_00.png", dpi=200)
+                        plt.close(fig)
                     for i in trange(nT):
                         t.assign(t(0) + dt(0))
                         previous_solution.assign(solution)
@@ -278,6 +301,6 @@ for nT in [8]:
                             plt.subplot(326)
                             plt.title("Error pF")
                             fenics_contour(pde.project(true_p - solution.split()[2], bc_Q))
-                            plt.savefig(f"convergence_static/figs/bcs_{setup}--u_{U_scale(0)}-p_{P_scale(0)}--nT_{nT}-nX_{nX}--ti_{i}.png", dpi=200)
+                            plt.savefig(f"convergence_static/figs/bcs_{setup}--u_{U_scale(0)}-p_{P_scale(0)}--nT_{nT:02d}-nX_{nX:02d}--ti_{i+1:02d}.png", dpi=200)
                             plt.close(fig)
 
