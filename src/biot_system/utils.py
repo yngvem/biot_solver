@@ -60,3 +60,21 @@ def fenics_contour(F, mesh_size=None, ax=None, clims=None):
     ax.contourf(xx, yy, zz.reshape(xx.shape), vmin=vmin, vmax=vmax, cmap="coolwarm", levels=100)
     ax.set_title(f"{zz.max():.1g}, {zz.min():.1g}")
     ax.axis("equal")
+
+
+def plot_solution(true_u, true_p, estimated_u, estimated_p, V, Q):
+    fig, axes = plt.subplots(3, 2, dpi=200)
+    fenics_quiver(true_u, ax=axes[0, 0])
+    fenics_quiver(estimated_u, ax=axes[1, 0])
+    fenics_quiver(pde.project(true_u - estimated_u, V), ax=axes[2, 0])
+    axes[0, 0].set_title("True u")
+    axes[1, 0].set_title("Estimated u")
+    axes[2, 0].set_title("Error u")
+
+    fenics_contour(true_p, ax=axes[0, 1])
+    fenics_contour(estimated_p, ax=axes[1, 1])
+    fenics_contour(pde.project(true_p - estimated_p, Q), ax=axes[2, 1])
+    axes[0, 1].set_title("True pF")
+    axes[1, 1].set_title("Estimated pF")
+    axes[2, 1].set_title("Error pF")
+    return fig, axes
