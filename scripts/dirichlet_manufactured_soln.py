@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from ufl import nabla_div, dx, inner, nabla_grad
 from biot_system.utils import fenics_contour, fenics_quiver
-from biot_system import BiotSystem, epsilon
+from biot_system import TotalPressureBiotSystem, epsilon
 
 
 plot_result = False
@@ -73,7 +73,7 @@ for nT in [8]:
 
 
         #%% Setup bilinear form
-        system = BiotSystem(
+        system = TotalPressureBiotSystem(
             mesh=mesh,
             shear_modulus=mu,
             lame_parameter=lambda_,

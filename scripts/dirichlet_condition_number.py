@@ -7,7 +7,7 @@ import scipy.linalg as sla
 import scipy.sparse.linalg as spla
 
 from biot_system.utils import dolfin_to_scipy
-from biot_system import BiotSystem
+from biot_system import TotalPressureBiotSystem
 
 
 #%% Setup arguments
@@ -48,7 +48,7 @@ for nT in [1, 32, 32*32, 32*32*32]:
         g = zero
 
         #%% Setup bilinear form
-        system = BiotSystem(
+        system = TotalPressureBiotSystem(
             mesh=mesh,
             shear_modulus=mu,
             lame_parameter=lambda_,
