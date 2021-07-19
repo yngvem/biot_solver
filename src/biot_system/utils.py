@@ -2,6 +2,10 @@ import matplotlib.pyplot as plt
 import scipy.sparse as sparse
 import fenics as pde
 import numpy as np
+import matplotlib.colors as mcolor
+import matplotlib.cm as cm
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+
 
 
 def petsc_to_scipy(petsc_matrix):
@@ -35,8 +39,18 @@ def fenics_quiver(F, mesh_size=None, ax=None):
         np.sqrt(uu**2 + vv**2).reshape(xx.shape),
         cmap="magma",
     )
-    ax.set_title(f"U: {uu.max():.1g}, {uu.min():.1g}, V: {vv.max():.1g}, {vv.min():.1g}")
+    norm = mcolor.Normalize()
+    norm.autoscale(np.sqrt(uu**2 + vv**2))
+    sm = cm.ScalarMappable(cmap="magma", norm=norm)
+
+    #ax.set_title(f"U: {uu.max():.1g}, {uu.min():.1g}, V: {vv.max():.1g}, {vv.min():.1g}")
     ax.axis("equal")
+    
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes('right', size='5%', pad=0.05)
+    ax.figure.colorbar(sm, cax=cax, orientation='vertical')
+    ax.set_yticks([])
+    ax.set_xticks([])
 
 
 def fenics_contour(F, mesh_size=None, ax=None, clims=None):
@@ -57,24 +71,29 @@ def fenics_contour(F, mesh_size=None, ax=None, clims=None):
         vmin = -vmax
     else:
         vmin, vmax = clims
-    ax.contourf(xx, yy, zz.reshape(xx.shape), vmin=vmin, vmax=vmax, cmap="coolwarm", levels=100)
-    ax.set_title(f"{zz.max():.1g}, {zz.min():.1g}")
+    img = ax.contourf(xx, yy, zz.reshape(xx.shape), vmin=vmin, vmax=vmax, cmap="coolwarm", levels=100)
+    #ax.set_title(f"{zz.max():.1g}, {zz.min():.1g}")
     ax.axis("equal")
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes('right', size='5%', pad=0.05)
+    ax.figure.colorbar(img, cax=cax, orientation='vertical')
+    ax.set_yticks([])
+    ax.set_xticks([])
 
 
 def plot_solution(true_u, true_p, estimated_u, estimated_p, V, Q):
-    fig, axes = plt.subplots(3, 2, dpi=200)
+    fig, axes = plt.subplots(3, 2, dpi=200, tight_layout=True)
     fenics_quiver(true_u, ax=axes[0, 0])
     fenics_quiver(estimated_u, ax=axes[1, 0])
     fenics_quiver(pde.project(true_u - estimated_u, V), ax=axes[2, 0])
-    axes[0, 0].set_title("True u")
-    axes[1, 0].set_title("Estimated u")
-    axes[2, 0].set_title("Error u")
+    axes[0, 0].set_ylabel("True u")
+    axes[1, 0].set_ylabel("Estimated u")
+    axes[2, 0].set_ylabel("Error u")
 
     fenics_contour(true_p, ax=axes[0, 1])
     fenics_contour(estimated_p, ax=axes[1, 1])
     fenics_contour(pde.project(true_p - estimated_p, Q), ax=axes[2, 1])
-    axes[0, 1].set_title("True pF")
-    axes[1, 1].set_title("Estimated pF")
-    axes[2, 1].set_title("Error pF")
+    axes[0, 1].set_ylabel("True pF")
+    axes[1, 1].set_ylabel("Estimated pF")
+    axes[2, 1].set_ylabel("Error pF")
     return fig, axes
