@@ -153,6 +153,7 @@ def run_simulation(P_scale, U_scale, nT, nX, mu_value, lambda_value, kappa_value
         fig, axes = plot_solution(true_u, true_p, solution.split()[0], solution.split()[2], bc_V, bc_Q)
         fig.savefig(fig_path / f"mu_{mu_value}-lambda_{lambda_value}-kappa_{kappa_value}-alpha_{alpha_value}-dirichlet_u_{u_dirichlet}-dirichlet_p_{p_dirichlet}--u_{U_scale(0)}-p_{P_scale(0)}--nT_{nT:02d}-nX_{nX:02d}--ti_{i+1:02d}.png", dpi=200)
         plt.close(fig)
+    return results
 
 #%% Setup logs
 errors = {}
@@ -245,7 +246,7 @@ alpha = pde.Constant(alpha_value)
 
 
 
-values = list(np.logspace(-10, 0, 2)) + [0]
+values = [0, 1e-10, 1]
 for mu_value, lambda_value, kappa_value in itertools.product(values, repeat=3):
 
         setup = "u_mixed-p_mixed_opposite"
@@ -253,7 +254,7 @@ for mu_value, lambda_value, kappa_value in itertools.product(values, repeat=3):
         print("Setup:", setup, "out of", len(all_bc_settings))
         for nT in [1, 8]:
             print("\nnT", nT, flush=True)
-            for nX in [4, 8, 16]:
+            for nX in [8, 16]:
                 print("\nnX", nX, flush=True)
                 for U_scale in [0, 1]:
                     for P_scale in [0, 1]:
@@ -264,6 +265,6 @@ for mu_value, lambda_value, kappa_value in itertools.product(values, repeat=3):
                             continue
 
                         results = run_simulation(P_scale, U_scale, nT, nX, mu_value, lambda_value, kappa_value, alpha_value, u_dirichlet, p_dirichlet)
-                        for key, value in results:
+                        for key, value in results.items():
                             errors[key].append(value)
                         pd.DataFrame(errors).to_csv(output_path / "errors.csv")
