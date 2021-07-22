@@ -7,7 +7,7 @@ from biot_system.utils import fenics_contour, fenics_quiver
 from biot_system import TotalPressureBiotSystem, epsilon
 
 
-plot_result = False
+plot_result = True
 
 
 #%% Set boundary conditions
@@ -69,7 +69,7 @@ for nT in [8]:
         bc_Q = pde.FunctionSpace(mesh, 'CG', 1)
 
         f = -nabla_div(2*mu*epsilon(U)) + nabla_grad(P_total)
-        g = (alpha/lambda_)*P_total_dot - 2*(alpha*alpha/lambda_)*P_dot + kappa*nabla_div(nabla_grad(P))
+        g = -(alpha/lambda_)*P_total_dot + 2*(alpha*alpha/lambda_)*P_dot - kappa*nabla_div(nabla_grad(P))
 
 
         #%% Setup bilinear form
@@ -136,15 +136,15 @@ for nT in [8]:
             plt.subplot(221)
             plt.title("True u")
             fenics_quiver(true_u)
-            plt.subplot(224)
+            plt.subplot(223)
             plt.title("Estimated u")
             fenics_quiver(solution.split()[0])
             plt.subplot(222)
             plt.title("True pF")
-            fenics_contour(true_p_total)
+            fenics_contour(true_p)
             plt.subplot(224)
             plt.title("Estimated pF")
-            fenics_contour(solution.split()[1])
+            fenics_contour(solution.split()[2])
             plt.show()
 
         true_u = pde.project(U, rhs_V)

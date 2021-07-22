@@ -1,4 +1,3 @@
-import itertools
 from pathlib import Path
 
 import fenics as pde
@@ -39,11 +38,11 @@ def run_simulation(P_scale, U_scale, nT, nX, mu_value, lambda_value, kappa_value
     P_total = -lambda_ * nabla_div(U) + P
     P_total_dot = -lambda_ * nabla_div(U_dot) + P_dot
 
-    displacement_stress = 2 * mu * epsilon(U) - P_total*I
-    fluid_velocity = kappa*nabla_grad(P_total)
+    displacement_stress = +2 * mu * epsilon(U) - P_total*I
+    fluid_velocity = kappa*nabla_grad(P)
 
     f = -nabla_div(2*mu*epsilon(U)) + nabla_grad(P_total)
-    g = (alpha/lambda_)*P_total_dot - 2*(alpha*alpha/lambda_)*P_dot + kappa*nabla_div(nabla_grad(P))
+    g = -(alpha/lambda_)*P_total_dot + 2*(alpha*alpha/lambda_)*P_dot - kappa*nabla_div(nabla_grad(P))
 
     #%% Setup RHS
     rhs_V = pde.VectorFunctionSpace(mesh, 'CG', 5)
@@ -69,7 +68,7 @@ def run_simulation(P_scale, U_scale, nT, nX, mu_value, lambda_value, kappa_value
     v, qT, qF = system.test_functions
 
     a = system.get_lhs()
-    L = system.get_rhs() + inner(displacement_stress*n, v)*ds + dt*inner(dot(fluid_velocity, n), qF)*ds
+    L = system.get_rhs() + inner(displacement_stress*n, v)*ds - dt*inner(dot(fluid_velocity, n), qF)*ds
 
     #%% Setup BCs
     true_u = pde.project(U, rhs_V)
@@ -148,12 +147,12 @@ def run_simulation(P_scale, U_scale, nT, nX, mu_value, lambda_value, kappa_value
     results['pF (L2)'] = (pde.errornorm(true_p, solution.split()[2], 'l2'))
     results['pF (Linf)'] = (np.max(np.abs(est_p.vector() - bc_p.vector())))
 
-
     if plot_result:
         fig, axes = plot_solution(true_u, true_p, solution.split()[0], solution.split()[2], bc_V, bc_Q)
         fig.savefig(fig_path / f"mu_{mu_value}-lambda_{lambda_value}-kappa_{kappa_value}-alpha_{alpha_value}-dirichlet_u_{u_dirichlet}-dirichlet_p_{p_dirichlet}--u_{U_scale(0)}-p_{P_scale(0)}--nT_{nT:02d}-nX_{nX:02d}--ti_{i+1:02d}.png", dpi=200)
         plt.close(fig)
     return results
+
 
 #%% Setup logs
 errors = {}
@@ -244,17 +243,18 @@ experiment_id = 0
 alpha_value = 1
 alpha = pde.Constant(alpha_value)
 
-
-
 values = [0, 1e-10, 1]
-for mu_value, lambda_value, kappa_value in itertools.product(values, repeat=3):
+mu_value = 1
+#for mu_value, lambda_value, kappa_value in itertools.product(values, repeat=3):
+for lambda_value in [1]:#, 1e3, 1e6]:
+    for kappa_value in [1]:#3, 1e-3, 1e-6]:
 
         setup = "u_mixed-p_mixed_opposite"
         bc_settings = all_bc_settings[setup]
         print("Setup:", setup, "out of", len(all_bc_settings))
-        for nT in [1, 8]:
+        for nT in [32]:#[1, 8]:
             print("\nnT", nT, flush=True)
-            for nX in [8, 16]:
+            for nX in [4, 8, 16]:
                 print("\nnX", nX, flush=True)
                 for U_scale in [0, 1]:
                     for P_scale in [0, 1]:

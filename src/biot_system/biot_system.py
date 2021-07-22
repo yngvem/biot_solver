@@ -73,7 +73,7 @@ class TotalPressureBiotSystem:
         v, qT, qF = self.test_functions
         u_, pT_, pF_ = pde.split(self.previous_solution)
 
-        L = inner(f, v)*dx + dt*g*qF*dx
+        L = inner(f, v)*dx - dt*g*qF*dx
         timestep = ((alpha/lambda_)*pT_*qF - 2*(alpha*alpha / lambda_)*pF_*qF) * dx
         return L + timestep
 
