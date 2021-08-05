@@ -5,13 +5,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from tqdm import trange
-from ufl import dot, ds, dx, inner, nabla_div, nabla_grad
+from ufl import dot, ds, dx, inner, nabla_div, nabla_grad, div
 
 from biot_system import TotalPressureBiotSystem, epsilon
-from biot_system.benchmarks import static_P, static_U
+from biot_system.benchmarks import static_P, static_U, linear_time_P, linear_time_U, exponential_time_U, exponential_time_P
 from biot_system.utils import plot_solution
 
 plot_result = True
+generate_P = linear_time_P
+generate_U = linear_time_U
 
 
 def run_simulation(P_scale, U_scale, nT, nX, mu_value, lambda_value, kappa_value, alpha_value, u_dirichlet, p_dirichlet):
@@ -33,8 +35,8 @@ def run_simulation(P_scale, U_scale, nT, nX, mu_value, lambda_value, kappa_value
     x = pde.SpatialCoordinate(mesh)
     n = pde.FacetNormal(mesh)
 
-    U, U_dot = static_U(x, t, scale=U_scale)
-    P, P_dot = static_P(x, t, scale=P_scale)
+    U, U_dot = generate_U(x, t, scale=U_scale)
+    P, P_dot = generate_P(x, t, scale=P_scale)
     P_total = -lambda_ * nabla_div(U) + P
     P_total_dot = -lambda_ * nabla_div(U_dot) + P_dot
 
@@ -246,18 +248,18 @@ alpha = pde.Constant(alpha_value)
 values = [0, 1e-10, 1]
 mu_value = 1
 #for mu_value, lambda_value, kappa_value in itertools.product(values, repeat=3):
-for lambda_value in [1]:#, 1e3, 1e6]:
-    for kappa_value in [1]:#3, 1e-3, 1e-6]:
+for lambda_value in [1, 1e3, 1e6]:
+    for kappa_value in [1, 1e-3, 1e-6]:
 
         setup = "u_mixed-p_mixed_opposite"
         bc_settings = all_bc_settings[setup]
         print("Setup:", setup, "out of", len(all_bc_settings))
-        for nT in [32]:#[1, 8]:
+        for nT in [128]:
             print("\nnT", nT, flush=True)
             for nX in [4, 8, 16]:
                 print("\nnX", nX, flush=True)
-                for U_scale in [0, 1]:
-                    for P_scale in [0, 1]:
+                for U_scale in [1]:
+                    for P_scale in [1]:
                         u_dirichlet = bc_settings['u_dirichlet']
                         p_dirichlet = bc_settings['p_dirichlet']
 
