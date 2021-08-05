@@ -1,9 +1,9 @@
 import fenics as pde
-from ufl import dx, inner, nabla_div, nabla_grad
+from ufl import dx, inner, nabla_div, nabla_grad, sym
 
 
 def epsilon(u):
-    return nabla_grad(u)
+    return sym(nabla_grad(u))
 
 
 class TotalPressureBiotSystem:
