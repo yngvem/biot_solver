@@ -42,3 +42,21 @@ def linear_time_P(x, t, scale):
     return P, P_dot
 
 
+def exponential_time_U(x, t, scale):
+    U = pde.as_vector((
+        scale*pde.cos(x[0])*pde.cos(x[1])*pde.exp(t),
+        scale*pde.cos(x[0])*pde.cos(x[1])*pde.exp(t)
+    ))
+    U_dot = pde.as_vector((
+        scale*pde.cos(x[0])*pde.cos(x[1])*pde.exp(t),
+        scale*pde.cos(x[0])*pde.cos(x[1])*pde.exp(t)
+    ))
+
+    return U, U_dot
+
+
+def exponential_time_P(x, t, scale):
+    scale = pde.Constant(scale)
+    P = scale*pde.cos(x[0])*pde.cos(x[1])*pde.exp(t)
+    P_dot = scale*pde.cos(x[0])*pde.cos(x[1])*pde.exp(t)
+    return P, P_dot
